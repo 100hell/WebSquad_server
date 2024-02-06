@@ -18,9 +18,9 @@ app.use(
 const port = process.env.PORT || 5000;
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: "danol279o",
+  api_key: "823743154242596",
+  api_secret: "BW44W4HjSOVtPNyD6lF2gnAc1e8",
 });
 // Middleswares
 app.use(express.json({ limit: "50mb" })); // It is to parse json data in the req.body
