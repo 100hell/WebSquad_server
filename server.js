@@ -10,7 +10,11 @@ import { app, server } from "./socket/socket.js";
 import cors from "cors";
 dotenv.config();
 connectDB();
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 const port = process.env.PORT || 5000;
 
 cloudinary.config({
