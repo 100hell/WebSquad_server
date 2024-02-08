@@ -14,12 +14,16 @@ import fs from "fs";
 
 dotenv.config();
 connectDB();
+<<<<<<< HEAD
 app.use(
   cors({
     origin: "*",
   })
 );
 
+=======
+app.use(cors());
+>>>>>>> aff86054462d984061c373ed64e5da202e5878da
 const port = process.env.PORT || 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
