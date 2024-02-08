@@ -10,17 +10,13 @@ import { app, server } from "./socket/socket.js";
 import cors from "cors";
 dotenv.config();
 connectDB();
-app.use(
-  cors({
-    origin: "*",
-  })
-);
+app.use(cors());
 const port = process.env.PORT || 5000;
 
 cloudinary.config({
-  cloud_name: "danol279o",
-  api_key: "823743154242596",
-  api_secret: "BW44W4HjSOVtPNyD6lF2gnAc1e8",
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 // Middleswares
 app.use(express.json({ limit: "50mb" })); // It is to parse json data in the req.body
@@ -28,7 +24,6 @@ app.use(express.urlencoded({ extended: true })); // It is to parse form data to 
 app.use(cookieParser());
 
 // Routes
-app.use("/", ()=>console.log("running));
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/messages", messageRoutes);
