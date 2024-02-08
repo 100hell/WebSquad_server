@@ -8,7 +8,7 @@ const io = new Server(server, {
   cors: {
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST"],
-    origin: "http://localhost:3001",
+    origin: "https://web-squad-server.vercel.app/",
     credentials: true,
   },
 });
