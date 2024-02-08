@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon server.js",
     "serve":"NODE_ENV=production nodemon server.js",
-    "start": "node server.js"
+    "start": "NODE_ENV=production node server.js"
   },
   "type": "module",
   "keywords": [],
