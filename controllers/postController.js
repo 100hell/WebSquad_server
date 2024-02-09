@@ -43,7 +43,7 @@ const createPost = async (req, res) => {
         );
       });
       img = result.secure_url;
-    } else {
+    } else if (img.includes("image/")) {
       const uploadedResponse = await cloudinary.uploader.upload(img);
       img = uploadedResponse.secure_url;
     }
