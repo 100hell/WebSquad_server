@@ -7,6 +7,7 @@ import postRoutes from "./routes/postRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import { v2 as cloudinary } from "cloudinary";
 import { app, server } from "./socket/socket.js";
+import Ably from "ably";
 import cors from "cors";
 import path, { join } from "path";
 import { fileURLToPath } from "url";

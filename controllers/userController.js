@@ -4,6 +4,7 @@ import generatetokeandsetcookie from "../utils/helpers/generatetokeandsetcookie.
 import { v2 as cloudinary } from "cloudinary";
 import mongoose from "mongoose";
 import Post from "../models/postModel.js";
+import HashTags from "../models/hashtagModal.js";
 const signupUser = async (req, res) => {
   try {
     const { name, email, username, password } = req.body;
@@ -198,6 +199,22 @@ const getExploreUsers = async (req, res) => {
     console.log("error in get explore user: ", error.message);
   }
 };
+
+const getSearchUsers = async (req, res) => {
+  try {
+    const { searchedUser } = req.params;
+    const users = await User.find({
+      username: { $regex: `^${searchedUser}`, $options: "i" },
+    });
+    const hashtags = await HashTags.find({
+      hashtag: { $regex: `^${searchedUser}`, $options: "i" },
+    });
+    res.status(200).json({ users, hashtags });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log("error in get search users : ", error.message);
+  }
+};
 export {
   signupUser,
   loginUser,
@@ -206,4 +223,5 @@ export {
   updateUser,
   getUserProfile,
   getExploreUsers,
+  getSearchUsers,
 };
