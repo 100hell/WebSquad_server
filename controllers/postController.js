@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import Post from "../models/postModel.js";
 import { v2 as cloudinary } from "cloudinary";
+import HashTags from "../models/hashtagModal.js";
 
 const createPost = async (req, res) => {
   try {
@@ -21,12 +22,14 @@ const createPost = async (req, res) => {
         error: `text length should be less than ${maxLength} characters.`,
       });
     }
+
     function extractHashtags(tweetText) {
       const regex = /#\w+/g;
       const hashtagsArray = tweetText.match(regex) || [];
       hashtags = hashtagsArray.map((hashtag) => hashtag.slice(1));
     }
     extractHashtags(text);
+    // console.log(hashtags);
     if (img.includes("video/")) {
       const result = await new Promise((resolve, reject) => {
         cloudinary.uploader.upload_large(
@@ -42,17 +45,23 @@ const createPost = async (req, res) => {
           }
         );
       });
+      c;
       img = result.secure_url;
-    } else {
+    } else if (img.includes("image/")) {
       const uploadedResponse = await cloudinary.uploader.upload(img);
       img = uploadedResponse.secure_url;
     }
 
-    // console.log(hashtags);
     const newPost = new Post({ postedBy, text, img, hashtags });
     await newPost.save();
     // console.log(newPost);
-
+    newPost.hashtags.forEach((hashtag) => {
+      HashTags.findOneAndUpdate(
+        { hashtag: hashtag },
+        { $push: { posts: newPost._id } },
+        { upsert: true }
+      ).exec();
+    });
     return res.status(201).json(newPost);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -90,6 +99,10 @@ const deletePost = async (req, res) => {
       await cloudinary.uploader.destroy(imgId);
     }
     await Post.findByIdAndDelete(req.params.postId);
+    HashTags.updateMany(
+      { posts: req.params.postId },
+      { $pull: { posts: req.params.postId } }
+    ).exec();
     res.status(200).json({ message: "Post Deleted Successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -178,16 +191,24 @@ const replyToPost = async (req, res) => {
 
 const getFeedPost = async (req, res) => {
   try {
+    let page = req.params.page;
+    let resultsPerPage = 5;
     const userId = req.user._id;
     const user = await User.findById(userId);
     if (!user) {
       return res.status(400).json({ error: "User not found" });
     }
     const following = user.following;
-    const feedPosts = await Post.find({ postedBy: { $in: following } }).sort({
-      createdAt: -1,
-    });
+    const feedPosts = await Post.find({ postedBy: { $in: following } })
+      .sort({
+        createdAt: -1,
+      })
+      .skip(page * resultsPerPage)
+      .limit(resultsPerPage);
     // .limit(10);    //this is to get max 10 posts.
+    // if (!feedPosts[0]) {
+    //   res.status(200).json({ finish: true });
+    // }
     res.status(200).json(feedPosts);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -212,6 +233,19 @@ const getUserPost = async (req, res) => {
   }
 };
 
+const getHashtagPosts = async (req, res) => {
+  try {
+    const { hashtagText } = req.params;
+    const hashtagPost = await Post.find({ hashtags: hashtagText }).sort({
+      createdAt: -1,
+    });
+    res.status(200).json(hashtagPost);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log("error in get hashtag posts: ", error.message);
+  }
+};
+
 export {
   createPost,
   getPost,
@@ -221,4 +255,5 @@ export {
   getFeedPost,
   getUserPost,
   deleteReply,
+  getHashtagPosts,
 };
