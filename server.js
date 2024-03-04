@@ -9,10 +9,23 @@ import { v2 as cloudinary } from "cloudinary";
 import { app, server } from "./socket/socket.js";
 import Ably from "ably";
 import cors from "cors";
+import path, { join } from "path";
+import { fileURLToPath } from "url";
+import fs from "fs";
+
 dotenv.config();
 connectDB();
-app.use(cors());
+
+app.use(
+  cors({
+    origin: "*",
+  })
+);
+
 const port = process.env.PORT || 5000;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(express.static(path.join(__dirname, "dist")));
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -28,4 +41,13 @@ app.use(cookieParser());
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/messages", messageRoutes);
+if (process.env.NODE_ENV === "production") {
+  const STATIC_PATH = path.join(__dirname, "dist", "index.html");
+  app.use("/*", async (req, res) => {
+    return res
+      .status(200)
+      .set("Content-Type", "text/html")
+      .send(fs.readFileSync(STATIC_PATH));
+  });
+}
 server.listen(port, () => console.log(`Server started at port ${port}`));
